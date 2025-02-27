@@ -1,0 +1,8 @@
+# .gitignoreの一例
+__pycache__/
+*.pyc
+*.pth
+*.pt
+data/
+models/checkpoints/
+*.ipynb_checkpoints
