@@ -31,6 +31,16 @@ def min_max_normalize(input_tensor):
     normalized_tensor = (input_tensor - min_val) / (max_val - min_val)
     return normalized_tensor
 
+def standardize(input):
+    mean = input.mean()
+    std = input.std()
+    epsilon = 1e-7
+    normalized_tensor = (input - mean) / (std + epsilon)
+    print("mean (before):", mean.item())
+    print("std (before):", std.item())
+    print("mean (after):", normalized_tensor.mean().item())
+    print("std (after):", normalized_tensor.std().item())
+    return normalized_tensor
 
 def total_variation_loss(x):
     # 縦方向の差分 |x[i, j+1] - x[i, j]|

@@ -6,7 +6,7 @@ import torch.optim as optim
 from src.dataset.process import load_npz_file, load_npz_signal, target_image, collected_signal
 from src.dataset.speckle_pred import speckle_pred_inv
 from src.utils.inv_recon import img_reconstruction
-from src.utils.utils import np_to_torch, min_max_normalize, total_variation_loss, image_save
+from src.utils.utils import np_to_torch, min_max_normalize, total_variation_loss, image_save, standardize
 from src.models.linear import FCModel
 from src.models.GIDC import GIDC28
 # python -m src.trainer
@@ -125,7 +125,8 @@ def train_gidc(collected_path, target_path, select):
     recon_list = []
     for num in range(10):
         print(f"\n================ Image {num} の学習開始 ================\n")
-        input = min_max_normalize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
+        # input = min_max_normalize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
+        input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
         y_ = Y_mnist_tensor[num].to(device)
         # print(y_.shape)
         model = GIDC28(kernel_size=5, name="gidc", select=select).to(device)
