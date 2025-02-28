@@ -65,14 +65,22 @@ def image_save(x, y, epoch, num, select, model, lr, tv):
 
     # 2つの画像を並べて表示するための設定
     fig, axes = plt.subplots(1, 2, figsize=(6, 3))
-    axes[0].imshow(x_img, cmap="gray")
-    axes[0].set_title("Ground Truth")
-    axes[0].axis("off")
+    if select=="both":
+        axes[0].imshow(x_img, cmap="gray", vmin=-1, vmax=1)
+        axes[0].set_title("Ground Truth")
+        axes[0].axis("off")
 
-    axes[1].imshow(y_img, cmap="gray")
-    axes[1].set_title("Reconstructed")
-    axes[1].axis("off")
+        axes[1].imshow(y_img, cmap="gray", vmin=-1, vmax=1)
+        axes[1].set_title("Reconstructed")
+        axes[1].axis("off")
+    else:
+        axes[0].imshow(x_img, cmap="gray")
+        axes[0].set_title("Ground Truth")
+        axes[0].axis("off")
 
+        axes[1].imshow(y_img, cmap="gray")
+        axes[1].set_title("Reconstructed")
+        axes[1].axis("off")
     # SSIM, MSE, PSNR を小数点以下5桁までテキストにまとめる
     text_str = (
         f"SSIM: {ssim_val:.5f}\n"
