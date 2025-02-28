@@ -41,7 +41,7 @@ def train_simple(collected_path, target_path, select):
     print("X_random min, max:", X_random.min(), X_random.max())
     print("======================================")
     print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
-    S = speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
+    S = 2 * speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
     print("speckle by random:", S.min(), S.max(), S.shape)
     print("======================================")
     S_tensor = np_to_torch(S).float().to(device)
@@ -92,7 +92,7 @@ def train_simple(collected_path, target_path, select):
 def train_gidc(collected_path, target_path, select):
 # =============================================
     num_epochs = 3000
-    lr = 0.02
+    lr = 0.04
     TV_strength = 2e-9
 # =============================================
     if torch.cuda.is_available():
@@ -113,7 +113,7 @@ def train_gidc(collected_path, target_path, select):
     print("X_random min, max:", X_random.min(), X_random.max())
     print("======================================")
     print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
-    S = speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
+    S = 2 * speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
     print("speckle by random:", S.min(), S.max(), S.shape)
     X_mnist_first = img_reconstruction(S, Y_mnist)
     print("X_pinv:", X_mnist_first.min(), X_mnist_first.max(), X_mnist_first.shape)
