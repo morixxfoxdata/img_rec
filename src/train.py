@@ -11,7 +11,7 @@ file_x = "Rand+Mnist+Rand_size28x28_image(1500+10+1500)x2.npz"
 
 def main():
     # reconstructed = train_simple(collected_path=file_y, target_path=file_x, select="black")
-    reconstructed = train_gidc(collected_path=file_y, target_path=file_x, select="black")
+    reconstructed = train_gidc(collected_path=file_y, target_path=file_x, select="black", rand_select="both", scale=1)
 
 if __name__ == "__main__":
     main()

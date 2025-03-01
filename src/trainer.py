@@ -89,11 +89,11 @@ def train_simple(collected_path, target_path, select):
 
 
 
-def train_gidc(collected_path, target_path, select):
+def train_gidc(collected_path, target_path, select, rand_select, scale):
 # =============================================
     num_epochs = 2000
-    lr = 0.02
-    TV_strength = 1e-8
+    lr = 0.03
+    TV_strength = 1e-9
 # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -102,23 +102,24 @@ def train_gidc(collected_path, target_path, select):
     else:
         device = "cpu"
     print("Using device:", device)
-    Y_random, Y_mnist = collected_signal(path=collected_path, select=select)
-    X_random, X_mnist = target_image(path=target_path, select=select)
-    Y_mnist = Y_mnist * (-1)
-    Y_random = Y_random * (-1)
+    Y_random, Y_mnist = collected_signal(path=collected_path, select=select, rand_select=rand_select)
+    X_random, X_mnist = target_image(path=target_path, select=select, rand_select=rand_select)
+    # Y_mnist = Y_mnist * (-1)
+    # Y_random = Y_random * (-1)
     print("======================================")
-    print("Y_mnist shape:", Y_mnist.shape)
-    print("Y_random shape:", Y_random.shape)
-    print("X_mnist shape:", X_mnist.shape)
-    print("X_random shape:", X_random.shape)
+    # print("Y_mnist shape:", Y_mnist.shape)
+    # print("Y_random shape:", Y_random.shape)
+    # print("X_mnist shape:", X_mnist.shape)
+    # print("X_random shape:", X_random.shape)
     print("X_mnist min, max:", X_mnist.min(), X_mnist.max())
     print("X_random min, max:", X_random.min(), X_random.max())
     print("======================================")
     print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
-    S = 2 * speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
-    print("speckle by random:", S.min(), S.max(), S.shape)
+    S = scale * speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
+    print(f"speckle by random scaled by {scale}:", S.min(), S.max(), S.shape)
+    print("Y_mnist range:", Y_mnist.min(), Y_mnist.max())
     X_mnist_first = img_reconstruction(S, Y_mnist)
-    print("X_pinv:", X_mnist_first.min(), X_mnist_first.max(), X_mnist_first.shape)
+    print("X_input:", X_mnist_first.min(), X_mnist_first.max(), X_mnist_first.shape)
     print("======================================")
     S_tensor = np_to_torch(S).float().to(device)
     Y_mnist_tensor = np_to_torch(Y_mnist).float()
@@ -127,8 +128,8 @@ def train_gidc(collected_path, target_path, select):
     recon_list = []
     for num in range(10):
         print(f"\n================ Image {num} の学習開始 ================\n")
-        # input = min_max_normalize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
-        input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
+        input = min_max_normalize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
+        # input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
         y_ = Y_mnist_tensor[num].to(device)
         # print(y_.shape)
         model = GIDC28(kernel_size=5, name="gidc", select=select).to(device)
@@ -157,9 +158,11 @@ def train_gidc(collected_path, target_path, select):
                     epoch=epoch + 1,
                     num=num,
                     select=select,
+                    rand_select=rand_select,
                     model=model.model_name,
                     lr=lr,
-                    tv=TV_strength)
+                    tv=TV_strength,
+                    scale=scale)
                 print(f"mse:{mse_val:.5f}, ssim:{ssim_score:.5f}, PSNR: {psnr:.5f}")
         print(f"\n================ Image {num} の学習終了 ================\n")
         recon_list.append(reconstucted_target.detach().cpu().numpy())

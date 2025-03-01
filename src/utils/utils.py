@@ -31,6 +31,24 @@ def min_max_normalize(input_tensor):
     normalized_tensor = (input_tensor - min_val) / (max_val - min_val)
     return normalized_tensor
 
+def min_max_normalize_np(input):
+    """
+    入力テンソルに対してmin-max正規化
+    データの最小値を0、最大値を1にスケーリング
+
+    * 注釈:
+      - **min-max正規化**: データの最小値と最大値を用い、各値から最小値を引いた後に、(最大値-最小値)で割ることで0〜1の範囲に変換する手法です。
+    """
+    min_val = input.min()
+    max_val = input.max()
+    
+    # ゼロ除算回避のため、最小値と最大値が等しい場合は、全ての要素を0にします。
+    if max_val == min_val:
+        return np.zeros_like(input)
+    
+    normalized_tensor = (input - min_val) / (max_val - min_val)
+    return normalized_tensor
+
 def standardize(input):
     mean = input.mean()
     std = input.std()
@@ -52,16 +70,16 @@ def total_variation_loss(x):
     return torch.sum(tv_h) + torch.sum(tv_w)
 
 
-def image_save(x, y, epoch, num, select, model, lr, tv):
+def image_save(x, y, epoch, num, select, rand_select, model, lr, tv, scale):
     """
     x: 正解画像をFlatten(784次元)した配列
     y: 再構成画像をFlatten(784次元)した配列
     save_path: 保存ファイルパス (デフォルト: reconstruction_result.png)
     """
-    save_dir = os.path.join("results", "pix28", select, str(model))
+    save_dir = os.path.join("results", "pix28", f"m_{select}+r_{rand_select}", str(model))
     if not os.path.exists(save_dir):  # 存在しなければ作る
         os.makedirs(save_dir)
-    img_path=f"num{num}_ep{epoch}_lr{lr}_tv{tv}.png"
+    img_path=f"num{num}_ep{epoch}_lr{lr}_tv{tv}_scale{scale}.png"
 
 
     # 28x28にreshapeして可視化できる形にする
