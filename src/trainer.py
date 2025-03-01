@@ -91,9 +91,9 @@ def train_simple(collected_path, target_path, select):
 
 def train_gidc(collected_path, target_path, select):
 # =============================================
-    num_epochs = 3000
-    lr = 0.04
-    TV_strength = 2e-9
+    num_epochs = 2000
+    lr = 0.02
+    TV_strength = 1e-8
 # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -104,6 +104,8 @@ def train_gidc(collected_path, target_path, select):
     print("Using device:", device)
     Y_random, Y_mnist = collected_signal(path=collected_path, select=select)
     X_random, X_mnist = target_image(path=target_path, select=select)
+    Y_mnist = Y_mnist * (-1)
+    Y_random = Y_random * (-1)
     print("======================================")
     print("Y_mnist shape:", Y_mnist.shape)
     print("Y_random shape:", Y_random.shape)
@@ -140,7 +142,7 @@ def train_gidc(collected_path, target_path, select):
             loss = criterion(Y_dash, y_.unsqueeze(0)) + tv
             loss.backward()
             optimizer.step()
-            if (epoch + 1) % 500 == 0:
+            if (epoch + 1) % 100 == 0:
                 print(
                 f"Image {num}, Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.14f}"
                 )
