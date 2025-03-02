@@ -17,11 +17,11 @@ file_x = "Rand+Mnist+Rand_size28x28_image(1500+10+1500)x2.npz"
 
 
 
-def train_simple(collected_path, target_path, select):
+def train_simple(collected_path, target_path, select, rand_select, scale):
 # =============================================
-    num_epochs = 1000
-    lr = 0.001
-    TV_strength = 0
+    num_epochs = 5000
+    lr = 0.0001
+    TV_strength = 1e-9
 # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -30,8 +30,8 @@ def train_simple(collected_path, target_path, select):
     else:
         device = "cpu"
     print("Using device:", device)
-    Y_random, Y_mnist = collected_signal(path=collected_path, select=select)
-    X_random, X_mnist = target_image(path=target_path, select=select)
+    Y_random, Y_mnist = collected_signal(path=collected_path, select=select, rand_select=rand_select)
+    X_random, X_mnist = target_image(path=target_path, select=select, rand_select=rand_select)
     print("======================================")
     print("Y_mnist shape:", Y_mnist.shape)
     print("Y_random shape:", Y_random.shape)
@@ -41,7 +41,7 @@ def train_simple(collected_path, target_path, select):
     print("X_random min, max:", X_random.min(), X_random.max())
     print("======================================")
     print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
-    S = 2 * speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
+    S = scale * speckle_pred_inv(path_x=target_path, path_y=collected_path, select=select)
     print("speckle by random:", S.min(), S.max(), S.shape)
     print("======================================")
     S_tensor = np_to_torch(S).float().to(device)
@@ -78,9 +78,11 @@ def train_simple(collected_path, target_path, select):
                     epoch=epoch + 1,
                     num=num,
                     select=select,
+                    rand_select=rand_select,
                     model=model.model_name,
                     lr=lr,
-                    tv=TV_strength)
+                    tv=TV_strength,
+                    scale=scale)
                 print(f"mse:{mse_val:.5f}, ssim:{ssim_score:.5f}, PSNR: {psnr:.5f}")
         print(f"\n================ Image {num} の学習終了 ================\n")
         recon_list.append(reconstucted_target.detach().cpu().numpy())
