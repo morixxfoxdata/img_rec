@@ -32,7 +32,7 @@ def load_npz_signal(file_name):
     return signal
 
 # 1500+10+1500のとき
-def target_image(path, select="both"):
+def target_image(path, select="both", rand_select="both"):
     """
     params:
     path: 対象画像のpath
@@ -51,20 +51,26 @@ def target_image(path, select="both"):
     random_white = random[::2, :]
     random_black = random[1::2, :]
     if select == "both":
-        X_random = random_white - random_black
         X_mnist = mnist_white - mnist_black
     elif select == "white":
-        X_random = random_white
         X_mnist = mnist_white
     elif select == "black":
-        X_random = random_black
         X_mnist = mnist_black
     else:
         ValueError("arg:select is wrong!")
+
+    if rand_select == "both":
+        X_random = random_white - random_black
+    elif rand_select == "white":
+        X_random = random_white
+    elif rand_select == "black":
+        X_random = random_black
+    else:
+        ValueError("arg:select is wrong!")  
     return X_random, X_mnist
 
 # 1500+10+1500のとき
-def collected_signal(path, select="both"):
+def collected_signal(path, select="both", rand_select="both"):
     """
     params:
     path: 対象画像のpath
@@ -83,14 +89,20 @@ def collected_signal(path, select="both"):
     random_white = random[::2, :]
     random_black = random[1::2, :]
     if select == "both":
-        Y_random = random_white - random_black
         Y_mnist = mnist_white - mnist_black
     elif select == "white":
-        Y_random = random_white
         Y_mnist = mnist_white
     elif select == "black":
-        Y_random = random_black
         Y_mnist = mnist_black
+    else:
+        ValueError("arg:select is wrong!")
+
+    if rand_select == "both":
+        Y_random = random_white - random_black
+    elif rand_select == "white":
+        Y_random = random_white
+    elif rand_select == "black":
+        Y_random = random_black
     else:
         ValueError("arg:select is wrong!")
     return Y_random, Y_mnist
