@@ -104,9 +104,9 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
 
 def train_gidc(collected_path, target_path, select, rand_select, scale):
 # =============================================
-    num_epochs = 1000
+    num_epochs = 2000
     lr = 0.05
-    TV_strength = 6e-9
+    TV_strength = 5e-8
     kernel_size=3
 # =============================================
     if torch.cuda.is_available():
@@ -157,7 +157,7 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
             loss = criterion(Y_dash, y_.unsqueeze(0)) + tv
             loss.backward()
             optimizer.step()
-            if (epoch + 1) % 100 == 0:
+            if (epoch + 1) % 200 == 0:
                 print(
                 f"Image {num}, Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.14f}"
                 )
