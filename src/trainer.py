@@ -13,13 +13,24 @@ from src.models.GIDC import GIDC28
 file_y = "Rand+Mnist+Rand_pix28x28_image(1500+10+1500)x2_sig2500x4wave.npz"
 file_x = "Rand+Mnist+Rand_size28x28_image(1500+10+1500)x2.npz"
 
+seed = 42
+np.random.seed(seed)
+
+# PyTorchのCPU用シードを固定
+torch.manual_seed(seed)
+# PyTorchのGPU用シードを固定（複数GPUがある場合は全てに対して設定）
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+# cuDNNの非決定性を防ぐための設定
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 
 
 
 def train_simple(collected_path, target_path, select, rand_select, scale):
 # =============================================
-    num_epochs = 5000
+    num_epochs = 1000
     lr = 0.0001
     TV_strength = 1e-9
 # =============================================
@@ -93,9 +104,10 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
 
 def train_gidc(collected_path, target_path, select, rand_select, scale):
 # =============================================
-    num_epochs = 2000
-    lr = 0.03
-    TV_strength = 1e-9
+    num_epochs = 1000
+    lr = 0.05
+    TV_strength = 6e-9
+    kernel_size=3
 # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -134,7 +146,7 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
         # input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
         y_ = Y_mnist_tensor[num].to(device)
         # print(y_.shape)
-        model = GIDC28(kernel_size=5, name="gidc", select=select).to(device)
+        model = GIDC28(kernel_size=kernel_size, name="gidc", select=select).to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         for epoch in range(num_epochs):
             model.train()
@@ -164,7 +176,8 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
                     model=model.model_name,
                     lr=lr,
                     tv=TV_strength,
-                    scale=scale)
+                    scale=scale,
+                    kernel_size=kernel_size)
                 print(f"mse:{mse_val:.5f}, ssim:{ssim_score:.5f}, PSNR: {psnr:.5f}")
         print(f"\n================ Image {num} の学習終了 ================\n")
         recon_list.append(reconstucted_target.detach().cpu().numpy())

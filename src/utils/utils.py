@@ -70,16 +70,18 @@ def total_variation_loss(x):
     return torch.sum(tv_h) + torch.sum(tv_w)
 
 
-def image_save(x, y, epoch, num, select, rand_select, model, lr, tv, scale):
+def image_save(x, y, epoch, num, select, rand_select, model, lr, tv, scale, kernel_size):
     """
     x: 正解画像をFlatten(784次元)した配列
     y: 再構成画像をFlatten(784次元)した配列
     save_path: 保存ファイルパス (デフォルト: reconstruction_result.png)
     """
-    save_dir = os.path.join("results", "pix28", f"m_{select}+r_{rand_select}", str(model))
+    save_dir = os.path.join("results", "pix28", 
+                            f"m_{select}+r_{rand_select}", str(model), 
+                            f"lr{lr}_tv{tv}_scale{scale}_kernel{kernel_size}")
     if not os.path.exists(save_dir):  # 存在しなければ作る
         os.makedirs(save_dir)
-    img_path=f"num{num}_ep{epoch}_lr{lr}_tv{tv}_scale{scale}.png"
+    img_path=f"num{num}_ep{epoch}.png"
 
 
     # 28x28にreshapeして可視化できる形にする
