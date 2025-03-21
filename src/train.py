@@ -1,4 +1,4 @@
-from src.trainer import train_gidc, train_random_supervised, train_random_supervised_batch
+from src.trainer import train_random_supervised_batch
 
 file_y = "Rand+Mnist+Rand_pix28x28_image(1500+10+1500)x2_sig2500x4wave.npz"
 file_x = "Rand+Mnist+Rand_size28x28_image(1500+10+1500)x2.npz"

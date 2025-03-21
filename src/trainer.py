@@ -3,12 +3,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.dataset.process import collected_signal, target_image
-from src.dataset.speckle_pred import speckle_pred_inv
-from src.models.GIDC import GIDC28
-from src.models.linear import FCModel
-from src.utils.inv_recon import img_reconstruction
-from src.utils.utils import (
+from .dataset.process import collected_signal, target_image
+from .dataset.speckle_pred import speckle_pred_inv
+from .models.GIDC import GIDC28
+from .models.linear import FCModel
+from .utils.inv_recon import img_reconstruction
+from .utils.utils import (
     image_save,
     min_max_normalize,
     np_to_torch,
