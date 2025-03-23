@@ -13,7 +13,7 @@ from .dataset.process import (
     simulated_signal,
     target_image,
 )
-from .dataset.speckle_pred import speckle_pred_inv
+from .dataset.speckle_pred import speckle_pred_inv, speckle_pred_simulate
 from .models.GIDC import GIDC28
 from .models.linear import FCModel
 from .utils.inv_recon import img_reconstruction
@@ -70,7 +70,10 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
     print("======================================")
     print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
     S = scale * speckle_pred_inv(
-        path_x=target_path, path_y=collected_path, select=select
+        path_x=target_path,
+        path_y=collected_path,
+        select=select,
+        rand_select=rand_select,
     )
     print("speckle by random:", S.min(), S.max(), S.shape)
     print("======================================")
@@ -156,7 +159,10 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
     print("======================================")
     print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
     S = scale * speckle_pred_inv(
-        path_x=target_path, path_y=collected_path, select=select
+        path_x=target_path,
+        path_y=collected_path,
+        select=select,
+        rand_select=rand_select,
     )
     print(f"speckle by random scaled by {scale}:", S.min(), S.max(), S.shape)
     print("Y_mnist range:", Y_mnist.min(), Y_mnist.max())
@@ -252,20 +258,25 @@ def train_simulation(speckle_path, target_path, select, rand_select, scale):
     print("X_random min, max:", X_random.min(), X_random.max())
     print("======================================")
     speckle_npz = os.path.join(SPECKLE_DATA_DIR, speckle_path)
-    S = np.load(speckle_npz)["arr_0"].reshape((784, 784))
-    print(S.shape)
-    Y_all = np.dot(X, S.T)
+    S_ = np.load(speckle_npz)["arr_0"].reshape((784, 784))  # shape: (784枚, 28*28)
+    print(S_.shape)
+    # X.shape: (6020枚, 28*28)
+    Y_all = np.dot(X, S_.T)
     print(Y_all.shape)
     Y_random, Y_mnist = simulated_signal(
         signal=Y_all, select="both", rand_select="both"
     )
     print("Y_mnist, Y_random:", Y_mnist.shape, Y_random.shape)
+    S = speckle_pred_simulate(
+        path_x=target_path, Y_all=Y_all, select=select, rand_select=rand_select
+    )
     X_mnist_first = img_reconstruction(S.T, Y_mnist)
     print("X_first:", X_mnist_first.shape)
     # plt.imshow(X_mnist_first[1].reshape((28, -1)))
     # plt.show()
     print("======================================")
-    S_tensor = np_to_torch(S.T).float().to(device)
+    S_tensor = (np_to_torch(S.T).float()).to(device)
+    print("S_tensor:", S_tensor.min(), S_tensor.max())
     Y_mnist_tensor = np_to_torch(Y_mnist).float()
     X_input_tensor = np_to_torch(X_mnist_first).float()
     criterion = nn.MSELoss()
@@ -277,6 +288,8 @@ def train_simulation(speckle_path, target_path, select, rand_select, scale):
             device
         )
         # input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
+        print("input:", X_input_tensor.min(), X_input_tensor.max())
+        print("Y_mnist_tensor:", Y_mnist_tensor.min(), Y_mnist_tensor.max())
         y_ = Y_mnist_tensor[num].to(device)
         # print(y_.shape)
         model = GIDC28(kernel_size=kernel_size, name="gidc", select=select).to(device)

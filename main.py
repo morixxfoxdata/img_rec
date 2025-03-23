@@ -16,14 +16,14 @@ def main():
     # reconstructed = train_gidc(
     #     collected_path=file_y,
     #     target_path=file_x,
-    #     select="black",
+    #     select="both",
     #     rand_select="both",
     #     scale=1,
     # )
     train_simulation(
         speckle_path=file_s,
         target_path=file_x,
-        select="both",
+        select="black",
         rand_select="both",
         scale=1,
     )
