@@ -1,9 +1,11 @@
-import torch
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+import torch
+from skimage.metrics import peak_signal_noise_ratio as psnr
+from skimage.metrics import structural_similarity as ssim
 from sklearn.metrics import mean_squared_error
-from skimage.metrics import structural_similarity as ssim, peak_signal_noise_ratio as psnr
 
 
 def np_to_torch(img_np):
@@ -12,6 +14,7 @@ def np_to_torch(img_np):
     From C x W x H [0..1] to  C x W x H [0..1]
     """
     return torch.from_numpy(img_np)
+
 
 def min_max_normalize(input_tensor):
     """
@@ -23,13 +26,14 @@ def min_max_normalize(input_tensor):
     """
     min_val = input_tensor.min()
     max_val = input_tensor.max()
-    
+
     # ゼロ除算回避のため、最小値と最大値が等しい場合は、全ての要素を0にします。
     if max_val == min_val:
         return torch.zeros_like(input_tensor)
-    
+
     normalized_tensor = (input_tensor - min_val) / (max_val - min_val)
     return normalized_tensor
+
 
 def min_max_normalize_np(input):
     """
@@ -41,13 +45,14 @@ def min_max_normalize_np(input):
     """
     min_val = input.min()
     max_val = input.max()
-    
+
     # ゼロ除算回避のため、最小値と最大値が等しい場合は、全ての要素を0にします。
     if max_val == min_val:
         return np.zeros_like(input)
-    
+
     normalized_tensor = (input - min_val) / (max_val - min_val)
     return normalized_tensor
+
 
 def standardize(input):
     mean = input.mean()
@@ -60,6 +65,7 @@ def standardize(input):
     print("std (after):", normalized_tensor.std().item())
     return normalized_tensor
 
+
 def total_variation_loss(x):
     # 縦方向の差分 |x[i, j+1] - x[i, j]|
     tv_h = torch.abs(x[:, :, 1:, :] - x[:, :, :-1, :])
@@ -70,19 +76,34 @@ def total_variation_loss(x):
     return torch.sum(tv_h) + torch.sum(tv_w)
 
 
-def image_save(x, y, epoch, num, select, rand_select, model, lr, tv, scale, kernel_size):
+def image_save(
+    x, y, epoch, num, select, rand_select, model, lr, tv, scale, kernel_size, sim=False
+):
     """
     x: 正解画像をFlatten(784次元)した配列
     y: 再構成画像をFlatten(784次元)した配列
     save_path: 保存ファイルパス (デフォルト: reconstruction_result.png)
     """
-    save_dir = os.path.join("results", "pix28", 
-                            f"m_{select}+r_{rand_select}", str(model), 
-                            f"lr{lr}_tv{tv}_scale{scale}_kernel{kernel_size}")
+    if sim:
+        save_dir = os.path.join(
+            "results",
+            "pix28",
+            "sim",
+            f"m_{select}+r_{rand_select}",
+            str(model),
+            f"lr{lr}_tv{tv}_scale{scale}_kernel{kernel_size}",
+        )
+    else:
+        save_dir = os.path.join(
+            "results",
+            "pix28",
+            f"m_{select}+r_{rand_select}",
+            str(model),
+            f"lr{lr}_tv{tv}_scale{scale}_kernel{kernel_size}",
+        )
     if not os.path.exists(save_dir):  # 存在しなければ作る
         os.makedirs(save_dir)
-    img_path=f"num{num}_ep{epoch}.png"
-
+    img_path = f"num{num}_ep{epoch}.png"
 
     # 28x28にreshapeして可視化できる形にする
     x_img = x.reshape(28, 28)
@@ -95,7 +116,7 @@ def image_save(x, y, epoch, num, select, rand_select, model, lr, tv, scale, kern
 
     # 2つの画像を並べて表示するための設定
     fig, axes = plt.subplots(1, 2, figsize=(6, 3))
-    if select=="both":
+    if select == "both":
         axes[0].imshow(x_img, cmap="gray", vmin=-1, vmax=1)
         axes[0].set_title("Ground Truth")
         axes[0].axis("off")
@@ -112,26 +133,22 @@ def image_save(x, y, epoch, num, select, rand_select, model, lr, tv, scale, kern
         axes[1].set_title("Reconstructed")
         axes[1].axis("off")
     # SSIM, MSE, PSNR を小数点以下5桁までテキストにまとめる
-    text_str = (
-        f"SSIM: {ssim_val:.5f}\n"
-        f"MSE : {mse_val:.5f}\n"
-        f"PSNR: {psnr_val:.5f}"
-    )
+    text_str = f"SSIM: {ssim_val:.5f}\nMSE : {mse_val:.5f}\nPSNR: {psnr_val:.5f}"
 
     # 2枚目のサブプロット領域(axes[1])にテキストを配置
     # (X座標=0.5, Y座標=-0.1 は、サブプロット座標系の外側・下部)
     axes[1].text(
-        0.5, -0.1, text_str,
+        0.5,
+        -0.1,
+        text_str,
         transform=axes[1].transAxes,
         ha="center",
         va="top",
-        fontsize=10
+        fontsize=10,
     )
 
     plt.tight_layout()
-    save_file = os.path.join(
-        save_dir, img_path
-    )
+    save_file = os.path.join(save_dir, img_path)
     plt.savefig(save_file, dpi=300, bbox_inches="tight")
     plt.close()
     return mse_val, ssim_val, psnr_val
