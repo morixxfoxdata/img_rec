@@ -77,7 +77,18 @@ def total_variation_loss(x):
 
 
 def image_save(
-    x, y, epoch, num, select, rand_select, model, lr, tv, scale, kernel_size, sim=False
+    x,
+    y,
+    epoch,
+    num,
+    select,
+    rand_select,
+    model,
+    lr,
+    tv,
+    scale,
+    kernel_size=0,
+    sim=False,
 ):
     """
     x: 正解画像をFlatten(784次元)した配列

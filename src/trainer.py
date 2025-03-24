@@ -44,9 +44,9 @@ torch.backends.cudnn.benchmark = False
 
 def train_simple(collected_path, target_path, select, rand_select, scale):
     # =============================================
-    num_epochs = 1000
-    lr = 0.0001
-    TV_strength = 1e-9
+    num_epochs = 2000
+    lr = 0.0002
+    TV_strength = 1e-8
     # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -99,7 +99,7 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
             loss = criterion(Y_dash, y_.unsqueeze(0)) + tv
             loss.backward()
             optimizer.step()
-            if (epoch + 1) % 500 == 0:
+            if (epoch + 1) % 100 == 0:
                 print(
                     f"Image {num}, Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.14f}"
                 )
