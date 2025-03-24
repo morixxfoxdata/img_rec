@@ -89,17 +89,20 @@ def image_save(
     scale,
     kernel_size=0,
     sim=False,
+    sim_original="rough",
 ):
     """
     x: 正解画像をFlatten(784次元)した配列
     y: 再構成画像をFlatten(784次元)した配列
     save_path: 保存ファイルパス (デフォルト: reconstruction_result.png)
+    sim_original: "rough" or "notrough"
     """
     if sim:
         save_dir = os.path.join(
             "results",
             "pix28",
             "sim",
+            f"{sim_original}",
             f"m_{select}+r_{rand_select}",
             str(model),
             f"lr{lr}_tv{tv}_scale{scale}_kernel{kernel_size}",

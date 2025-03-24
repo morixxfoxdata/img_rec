@@ -131,7 +131,7 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
 def train_gidc(collected_path, target_path, select, rand_select, scale):
     # =============================================
     num_epochs = 2000
-    lr = 0.05
+    lr = 0.1
     TV_strength = 5e-8
     kernel_size = 3
     # =============================================
@@ -219,6 +219,7 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
                     scale=scale,
                     kernel_size=kernel_size,
                     sim=False,
+                    sim_original="true",
                 )
                 print(f"mse:{mse_val:.5f}, ssim:{ssim_score:.5f}, PSNR: {psnr:.5f}")
         print(f"\n================ Image {num} の学習終了 ================\n")
@@ -232,7 +233,9 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
 # ===================================================================================
 
 
-def train_simulation(speckle_path, target_path, select, rand_select, scale):
+def train_simulation(
+    speckle_path, target_path, select, rand_select, scale, sim_original
+):
     # =============================================
     num_epochs = 2000
     lr = 0.1
@@ -331,6 +334,7 @@ def train_simulation(speckle_path, target_path, select, rand_select, scale):
                     scale=scale,
                     kernel_size=kernel_size,
                     sim=True,
+                    sim_original=sim_original,
                 )
                 print(f"mse:{mse_val:.5f}, ssim:{ssim_score:.5f}, PSNR: {psnr:.5f}")
         print(f"\n================ Image {num} の学習終了 ================\n")
