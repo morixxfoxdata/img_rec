@@ -21,6 +21,7 @@ from .utils.utils import (
     image_save,
     min_max_normalize,
     np_to_torch,
+    standardize,
     total_variation_loss,
 )
 
@@ -164,8 +165,10 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
         select=select,
         rand_select=rand_select,
     )
+    # S.shape: (28*28, 10000枚)
     print(f"speckle by random scaled by {scale}:", S.min(), S.max(), S.shape)
     print("Y_mnist range:", Y_mnist.min(), Y_mnist.max())
+    print("Y_mnist, Y_random:", Y_mnist.shape, Y_random.shape)
     X_mnist_first = img_reconstruction(S, Y_mnist)
     print("X_input:", X_mnist_first.min(), X_mnist_first.max(), X_mnist_first.shape)
     print("======================================")
@@ -232,8 +235,8 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
 def train_simulation(speckle_path, target_path, select, rand_select, scale):
     # =============================================
     num_epochs = 2000
-    lr = 0.05
-    TV_strength = 5e-8
+    lr = 0.1
+    TV_strength = 1e-9
     kernel_size = 3
     # =============================================
     if torch.cuda.is_available():
@@ -261,21 +264,23 @@ def train_simulation(speckle_path, target_path, select, rand_select, scale):
     S_ = np.load(speckle_npz)["arr_0"].reshape((784, 784))  # shape: (784枚, 28*28)
     print(S_.shape)
     # X.shape: (6020枚, 28*28)
-    Y_all = np.dot(X, S_.T)
-    print(Y_all.shape)
+    Y_all = np.dot(X, S_.T)  # Y_all.shape: (6020, 784)
+    print("Y_all shape:", Y_all.shape)
     Y_random, Y_mnist = simulated_signal(
-        signal=Y_all, select="both", rand_select="both"
+        signal=Y_all, select=select, rand_select=rand_select
     )
     print("Y_mnist, Y_random:", Y_mnist.shape, Y_random.shape)
     S = speckle_pred_simulate(
         path_x=target_path, Y_all=Y_all, select=select, rand_select=rand_select
     )
-    X_mnist_first = img_reconstruction(S.T, Y_mnist)
+    print(f"speckle by random scaled by {scale}:", S.min(), S.max(), S.shape)
+    print("Y_mnist range:", Y_mnist.min(), Y_mnist.max())
+    X_mnist_first = img_reconstruction(S, Y_mnist)
     print("X_first:", X_mnist_first.shape)
     # plt.imshow(X_mnist_first[1].reshape((28, -1)))
     # plt.show()
     print("======================================")
-    S_tensor = (np_to_torch(S.T).float()).to(device)
+    S_tensor = (np_to_torch(S).float()).to(device)
     print("S_tensor:", S_tensor.min(), S_tensor.max())
     Y_mnist_tensor = np_to_torch(Y_mnist).float()
     X_input_tensor = np_to_torch(X_mnist_first).float()
@@ -284,10 +289,10 @@ def train_simulation(speckle_path, target_path, select, rand_select, scale):
 
     for num in range(10):
         print(f"\n================ Image {num} の学習開始 ================\n")
-        input = min_max_normalize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(
-            device
-        )
-        # input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
+        # input = min_max_normalize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(
+        #     device
+        # )
+        input = standardize(X_input_tensor[num].reshape((1, 1, 28, 28))).to(device)
         print("input:", X_input_tensor.min(), X_input_tensor.max())
         print("Y_mnist_tensor:", Y_mnist_tensor.min(), Y_mnist_tensor.max())
         y_ = Y_mnist_tensor[num].to(device)

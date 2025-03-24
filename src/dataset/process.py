@@ -117,7 +117,7 @@ def collected_signal(path, select="both", rand_select="both"):
 def simulated_signal(signal, select="both", rand_select="both"):
     """
     params:
-    signal: X, S.T の積(6020, 784)
+    signal: X, S_.T の積(6020, 784)
     select:str :
         both: 差分を取った画像を出力
         white: 白文字画像出力

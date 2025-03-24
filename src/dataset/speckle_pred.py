@@ -17,4 +17,4 @@ def speckle_pred_simulate(path_x, Y_all, select, rand_select):
     X_random, _ = target_image(path=path_x, select=select, rand_select=rand_select)
     X_pinv = np.linalg.pinv(X_random)
     S = np.dot(X_pinv, Y_random)
-    return S.T
+    return S
