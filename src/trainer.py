@@ -130,8 +130,8 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
 
 def train_gidc(collected_path, target_path, select, rand_select, scale):
     # =============================================
-    num_epochs = 2000
-    lr = 0.1
+    num_epochs = 10000
+    lr = 0.01
     TV_strength = 5e-8
     kernel_size = 3
     # =============================================
