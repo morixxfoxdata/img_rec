@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-from .common import conv
+
+from src.models.common import conv
 
 
 class ListModule(nn.Module):
@@ -48,7 +49,7 @@ class UNet1D(nn.Module):
         norm_layer=nn.InstanceNorm1d,
         need_sigmoid=True,
         need_bias=True,
-        time_length=1024
+        time_length=1024,
     ):
         super(UNet1D, self).__init__()
 
@@ -265,6 +266,7 @@ class unetUp1(nn.Module):
 
         return output
 
+
 class UNet1DShallow(nn.Module):
     """
     1次元用のUNet構造を浅くした版（downとupを各1段ずつ減らした）
@@ -284,7 +286,7 @@ class UNet1DShallow(nn.Module):
         norm_layer=nn.InstanceNorm1d,
         need_sigmoid=True,
         need_bias=True,
-        time_length=1024
+        time_length=1024,
     ):
         super(UNet1DShallow, self).__init__()
 
@@ -423,6 +425,7 @@ class UNet1DShallow(nn.Module):
 
         return self.final(up1)
 
+
 class UNet1DShallow_v2(nn.Module):
     """
     1次元用のUNet構造を浅くした版（downとupを各1段ずつ減らした）
@@ -442,20 +445,21 @@ class UNet1DShallow_v2(nn.Module):
         norm_layer=nn.BatchNorm1d,
         need_sigmoid=True,
         need_bias=True,
-        time_length=1024
+        time_length=1024,
+        name="UNET1D",
     ):
         super(UNet1DShallow_v2, self).__init__()
 
         self.feature_scale = feature_scale
         self.more_layers = more_layers
         self.concat_x = concat_x
-
+        self.model_name = name if name else self.__class__.__name__
         # down/up を 1 つずつ減らしたため、フィルタ数のリストは 4 要素に
         filters = [16, 32, 64, 128]
         filters = [x // self.feature_scale for x in filters]
 
-        if time_length != 512:
-            self.before = nn.Sequential(nn.Linear(time_length, 512), nn.LeakyReLU())
+        if time_length != 784:
+            self.before = nn.Sequential(nn.Linear(time_length, 784), nn.LeakyReLU())
         else:
             self.before = nn.Sequential()
 
@@ -523,8 +527,7 @@ class UNet1DShallow_v2(nn.Module):
         if need_sigmoid:
             self.final = nn.Sequential(
                 self.final,
-                nn.AdaptiveAvgPool1d(512),
-                nn.Linear(512, 65536),
+                nn.Linear(10000, 784),
                 nn.Sigmoid(),
             )
 
@@ -580,10 +583,3 @@ class UNet1DShallow_v2(nn.Module):
         up1 = self.up1(up2, in64)
 
         return self.final(up1)
-
-if __name__ == "__main__":
-    x = torch.randn(1, 1, 2048)
-    print(x.shape)
-    # model = UNet1D(time_length=2048)
-    model = UNet1DShallow_v2(time_length=2048)
-    print(model(x).shape)  # (1, 1, 64)
