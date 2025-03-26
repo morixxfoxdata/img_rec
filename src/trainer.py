@@ -323,8 +323,8 @@ def train_simulation(
 ):
     # =============================================
     num_epochs = 2000
-    lr = 0.1
-    TV_strength = 1e-9
+    lr = 0.01
+    TV_strength = 1e-8
     kernel_size = 3
     # =============================================
     if torch.cuda.is_available():
