@@ -133,7 +133,7 @@ def train_Unet(collected_path, target_path, select, rand_select, scale):
     # =============================================
     num_epochs = 5000
     lr = 0.0001
-    TV_strength = 4e-8
+    TV_strength = 1e-8
     # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -173,7 +173,9 @@ def train_Unet(collected_path, target_path, select, rand_select, scale):
         print(f"\n================ Image {num} の学習開始 ================\n")
         y_ = Y_mnist_tensor[num].unsqueeze(0).unsqueeze(0).to(device)
         print(y_.shape)
-        model = UNet1DShallow_v2(time_length=10000).to(device)
+        model = UNet1DShallow_v2(
+            concat_x=True, time_length=10000, name="U1D_concat"
+        ).to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         for epoch in range(num_epochs):
             model.train()

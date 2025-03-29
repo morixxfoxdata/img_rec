@@ -97,8 +97,6 @@ def conv(
             downsampler = nn.AvgPool1d(stride, stride)
         elif downsample_mode == "max":
             downsampler = nn.MaxPool1d(stride, stride)
-        # elif downsample_mode  in ['lanczos2', 'lanczos3']:
-        #     downsampler = Downsampler(n_planes=out_f, factor=stride, kernel_type=downsample_mode, phase=0.5, preserve_size=True)
         else:
             assert False
 
