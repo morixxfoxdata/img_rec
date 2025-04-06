@@ -92,6 +92,7 @@ def conv(
     in_f, out_f, kernel_size, stride=1, bias=True, pad="zero", downsample_mode="stride"
 ):
     downsampler = None
+    # ストライドが1でなく、かつモードがavg, maxの場合はdownsamplerを設定
     if stride != 1 and downsample_mode != "stride":
         if downsample_mode == "avg":
             downsampler = nn.AvgPool1d(stride, stride)

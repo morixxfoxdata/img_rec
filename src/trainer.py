@@ -43,6 +43,40 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 
+def speckle_saver(collected_path, target_path, select, rand_select, scale):
+    Y_random, Y_mnist = collected_signal(
+        path=collected_path, select=select, rand_select=rand_select
+    )
+    X_random, X_mnist = target_image(
+        path=target_path, select=select, rand_select=rand_select
+    )
+    print("======================================")
+    print("Y_mnist shape:", Y_mnist.shape)
+    print("Y_random shape:", Y_random.shape)
+    print("X_mnist shape:", X_mnist.shape)
+    print("X_random shape:", X_random.shape)
+    print("X_mnist min, max:", X_mnist.min(), X_mnist.max())
+    print("X_random min, max:", X_random.min(), X_random.max())
+    print("======================================")
+    print("ランダムパターンからspeckle_patternsを推定します。pinvを利用します。")
+    S = scale * speckle_pred_inv(
+        path_x=target_path,
+        path_y=collected_path,
+        select=select,
+        rand_select=rand_select,
+    )
+    print("speckle by random:", S.min(), S.max(), S.shape)
+    speckle_pattern = S.T
+    print(
+        "speckle by transpose:",
+        speckle_pattern.min(),
+        speckle_pattern.max(),
+        speckle_pattern.shape,
+    )
+    np.savez("exp_wave_multi_4_2m_1e-5.npz", speckle_pattern)
+    return speckle_pattern
+
+
 def train_simple(collected_path, target_path, select, rand_select, scale):
     # =============================================
     num_epochs = 2000

@@ -1,4 +1,4 @@
-from src.trainer import train_Unet
+from src.trainer import speckle_saver
 
 file_y = "Rand+Mnist+Rand_pix28x28_image(1500+10+1500)x2_sig2500x4wave.npz"
 file_x = "Rand+Mnist+Rand_size28x28_image(1500+10+1500)x2.npz"
@@ -23,10 +23,17 @@ def main():
     #     rand_select="both",
     #     scale=1,
     # )
-    reconstructed = train_Unet(
+    # reconstructed = train_Unet(
+    #     collected_path=file_y,
+    #     target_path=file_x,
+    #     select="black",
+    #     rand_select="both",
+    #     scale=1,
+    # )
+    _ = speckle_saver(
         collected_path=file_y,
         target_path=file_x,
-        select="black",
+        select="both",
         rand_select="both",
         scale=1,
     )
