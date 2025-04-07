@@ -170,11 +170,11 @@ def train_simple(
     return recon_list
 
 
-def train_Unet(collected_path, target_path, select, rand_select, scale, waves):
+def train_Unet(collected_path, target_path, select, rand_select, scale, waves, name):
     # =============================================
     num_epochs = 5000
     lr = 0.0001
-    TV_strength = 1e-8
+    TV_strength = 2e-8
     # =============================================
     if torch.cuda.is_available():
         device = "cuda"
@@ -184,7 +184,7 @@ def train_Unet(collected_path, target_path, select, rand_select, scale, waves):
         device = "cpu"
     print("Using device:", device)
     Y_random, Y_mnist = collected_signal(
-        path=collected_path, select=select, rand_select=rand_select
+        path=collected_path, select=select, rand_select=rand_select, waves=waves
     )
     X_random, X_mnist = target_image(
         path=target_path, select=select, rand_select=rand_select
@@ -215,9 +215,7 @@ def train_Unet(collected_path, target_path, select, rand_select, scale, waves):
         print(f"\n================ Image {num} の学習開始 ================\n")
         y_ = Y_mnist_tensor[num].unsqueeze(0).unsqueeze(0).to(device)
         print(y_.shape)
-        model = UNet1DShallow_v2(
-            concat_x=True, time_length=10000, name="U1D_concat"
-        ).to(device)
+        model = UNet1DShallow_v2(concat_x=True, time_length=2500, name=name).to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         for epoch in range(num_epochs):
             model.train()
@@ -259,9 +257,9 @@ def train_Unet(collected_path, target_path, select, rand_select, scale, waves):
 
 def train_gidc(collected_path, target_path, select, rand_select, scale, waves, name):
     # =============================================
-    num_epochs = 3000
-    lr = 0.01
-    TV_strength = 2e-8
+    num_epochs = 2000
+    lr = 0.1
+    TV_strength = 5e-8
     kernel_size = 3
     # =============================================
     if torch.cuda.is_available():

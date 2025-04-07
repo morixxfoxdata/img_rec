@@ -21,7 +21,7 @@ def main():
     reconstructed = train_gidc(
         collected_path=file_y,
         target_path=file_x,
-        select="both",
+        select="black",
         rand_select="both",
         scale=1,
         waves="1",
@@ -30,9 +30,11 @@ def main():
     # reconstructed = train_Unet(
     #     collected_path=file_y,
     #     target_path=file_x,
-    #     select="black",
+    #     select="both",
     #     rand_select="both",
     #     scale=1,
+    #     waves="1",
+    #     name="U1D_1",
     # )
     # _ = speckle_saver(
     #     collected_path=file_y,

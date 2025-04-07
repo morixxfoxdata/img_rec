@@ -527,8 +527,8 @@ class UNet1DShallow_v2(nn.Module):
         if need_sigmoid:
             self.final = nn.Sequential(
                 self.final,
-                nn.Linear(10000, 784),
-                nn.Sigmoid(),
+                nn.Linear(2496, 784),
+                nn.Tanh(),
             )
 
     def forward(self, inputs):
