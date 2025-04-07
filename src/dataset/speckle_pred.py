@@ -4,8 +4,10 @@ import numpy as np
 from src.dataset.process import collected_signal, simulated_signal, target_image
 
 
-def speckle_pred_inv(path_x, path_y, select="white", rand_select="both"):
-    Y_random, _ = collected_signal(path=path_y, select=select, rand_select=rand_select)
+def speckle_pred_inv(path_x, path_y, waves, select="white", rand_select="both"):
+    Y_random, _ = collected_signal(
+        path=path_y, select=select, rand_select=rand_select, waves=waves
+    )
     X_random, _ = target_image(path=path_x, select=select, rand_select=rand_select)
     X_pinv = np.linalg.pinv(X_random)
     S = np.dot(X_pinv, Y_random)

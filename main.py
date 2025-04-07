@@ -1,4 +1,4 @@
-from src.trainer import speckle_saver
+from src.trainer import train_simple
 
 file_y = "Rand+Mnist+Rand_pix28x28_image(1500+10+1500)x2_sig2500x4wave.npz"
 file_x = "Rand+Mnist+Rand_size28x28_image(1500+10+1500)x2.npz"
@@ -9,13 +9,15 @@ file_s = "mask_patterns_length10_core1e-05.npz"
 
 
 def main():
-    # reconstructed = train_simple(
-    #     collected_path=file_y,
-    #     target_path=file_x,
-    #     select="black",
-    #     rand_select="both",
-    #     scale=1,
-    # )
+    reconstructed = train_simple(
+        collected_path=file_y,
+        target_path=file_x,
+        select="black",
+        rand_select="both",
+        scale=1,
+        waves="123",
+        name="black",
+    )
     # reconstructed = train_gidc(
     #     collected_path=file_y,
     #     target_path=file_x,
@@ -30,13 +32,13 @@ def main():
     #     rand_select="both",
     #     scale=1,
     # )
-    _ = speckle_saver(
-        collected_path=file_y,
-        target_path=file_x,
-        select="both",
-        rand_select="both",
-        scale=1,
-    )
+    # _ = speckle_saver(
+    #     collected_path=file_y,
+    #     target_path=file_x,
+    #     select="both",
+    #     rand_select="both",
+    #     scale=1,
+    # )
     # train_simulation(
     #     speckle_path=file_s_2m_1,
     #     target_path=file_x,

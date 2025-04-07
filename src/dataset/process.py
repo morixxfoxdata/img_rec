@@ -76,7 +76,7 @@ def target_image(path, select="both", rand_select="both"):
 
 
 # 1500+10+1500のとき
-def collected_signal(path, select="both", rand_select="both"):
+def collected_signal(path, select="both", rand_select="both", waves="all"):
     """
     params:
     path: 対象画像のpath
@@ -91,9 +91,26 @@ def collected_signal(path, select="both", rand_select="both"):
     random_3020_6020 = signal[3020:, :]
     mnist_white = mnist[::2, :]
     mnist_black = mnist[1::2, :]
-    random = np.vstack((random_0_3000, random_3020_6020))
+    if waves == "1234":
+        random = np.vstack((random_0_3000, random_3020_6020))
+        print("done")
+    elif waves == "123":
+        random = np.vstack((random_0_3000[:, :7500], random_3020_6020[:, :7500]))
+        mnist_white = mnist_white[:, :7500]
+        mnist_black = mnist_black[:, :7500]
+    elif waves == "12":
+        random = np.vstack((random_0_3000[:, :5000], random_3020_6020[:, :5000]))
+        mnist_white = mnist_white[:, :5000]
+        mnist_black = mnist_black[:, :5000]
+    elif waves == "1":
+        random = np.vstack((random_0_3000[:, :2500], random_3020_6020[:, :2500]))
+        mnist_white = mnist_white[:, :2500]
+        mnist_black = mnist_black[:, :2500]
+    else:
+        pass
     random_white = random[::2, :]
     random_black = random[1::2, :]
+    print("Random shape:", random.shape)
     if select == "both":
         Y_mnist = mnist_white - mnist_black
     elif select == "white":

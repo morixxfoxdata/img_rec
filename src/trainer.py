@@ -77,7 +77,9 @@ def speckle_saver(collected_path, target_path, select, rand_select, scale):
     return speckle_pattern
 
 
-def train_simple(collected_path, target_path, select, rand_select, scale):
+def train_simple(
+    collected_path, target_path, select, rand_select, scale, waves="1234", name="FC"
+):
     # =============================================
     num_epochs = 2000
     lr = 0.0002
@@ -91,7 +93,7 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
         device = "cpu"
     print("Using device:", device)
     Y_random, Y_mnist = collected_signal(
-        path=collected_path, select=select, rand_select=rand_select
+        path=collected_path, select=select, rand_select=rand_select, waves=waves
     )
     X_random, X_mnist = target_image(
         path=target_path, select=select, rand_select=rand_select
@@ -108,6 +110,7 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
     S = scale * speckle_pred_inv(
         path_x=target_path,
         path_y=collected_path,
+        waves=waves,
         select=select,
         rand_select=rand_select,
     )
@@ -122,7 +125,11 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
         y_ = Y_mnist_tensor[num].to(device)
         print(y_.shape)
         model = FCModel(
-            input_size=10000, hidden_size=1024, output_size=784, select=select
+            input_size=7500,
+            hidden_size=1024,
+            output_size=784,
+            select=select,
+            name=name,
         ).to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         for epoch in range(num_epochs):
@@ -163,7 +170,7 @@ def train_simple(collected_path, target_path, select, rand_select, scale):
     return recon_list
 
 
-def train_Unet(collected_path, target_path, select, rand_select, scale):
+def train_Unet(collected_path, target_path, select, rand_select, scale, waves):
     # =============================================
     num_epochs = 5000
     lr = 0.0001
@@ -194,6 +201,7 @@ def train_Unet(collected_path, target_path, select, rand_select, scale):
     S = scale * speckle_pred_inv(
         path_x=target_path,
         path_y=collected_path,
+        waves=waves,
         select=select,
         rand_select=rand_select,
     )
@@ -249,7 +257,7 @@ def train_Unet(collected_path, target_path, select, rand_select, scale):
     return recon_list
 
 
-def train_gidc(collected_path, target_path, select, rand_select, scale):
+def train_gidc(collected_path, target_path, select, rand_select, scale, waves):
     # =============================================
     num_epochs = 10000
     lr = 0.01
@@ -283,6 +291,7 @@ def train_gidc(collected_path, target_path, select, rand_select, scale):
     S = scale * speckle_pred_inv(
         path_x=target_path,
         path_y=collected_path,
+        waves=waves,
         select=select,
         rand_select=rand_select,
     )
