@@ -15,7 +15,7 @@ def main():
         select="black",
         rand_select="both",
         scale=1,
-        waves="123",
+        waves="12",
         name="black",
     )
     # reconstructed = train_gidc(

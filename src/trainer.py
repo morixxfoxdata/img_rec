@@ -125,7 +125,7 @@ def train_simple(
         y_ = Y_mnist_tensor[num].to(device)
         print(y_.shape)
         model = FCModel(
-            input_size=7500,
+            input_size=5000,
             hidden_size=1024,
             output_size=784,
             select=select,
